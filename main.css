@@ -1,0 +1,24 @@
+iframes {
+  display: flex;
+  flex-direction: row;
+  column-gap: 20px;
+}
+
+label,
+button {
+  display: block;
+  font-weight: bold;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+button {
+  margin-top: 10px;
+}
+
+input,
+select {
+  width: 200px;
+}
