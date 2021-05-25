@@ -4,19 +4,23 @@ import (
 	"bytes"
 	"embed"
 	"encoding/json"
+	"flag"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 )
 
 type TplData struct {
-	URL        string
-	Width      int
-	Height     int
-	Evergreens []string
-	Latests    []CAPIItem
+	FrontendURL string
+	DCRURL      string
+	Width       int
+	Height      int
+	Evergreens  []string
+	Latests     []CAPIItem
 }
 
 type CAPIItem struct {
@@ -63,6 +67,9 @@ func latestInteractives() ([]CAPIItem, error) {
 
 func main() {
 
+	isLocalDCR := flag.Bool("local", false, "If present, will use local DCR (on port 3030) for comparison rather than PROD.")
+	flag.Parse()
+
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.FS(files))))
 
 	http.HandleFunc("/proxy", func(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +96,7 @@ func main() {
 		
 		<form>
 			<label for="url">Custom URL:</label>
-			<input type="url" id="url" name="target" value="{{.URL}}">
+			<input type="url" id="url" name="target" value="{{.FrontendURL}}">
 			<button>Update</button>
 		</form>
 
@@ -118,13 +125,13 @@ func main() {
     		title="Inline Frame Example"
     		width="{{.Width}}"
     		height="{{.Height}}"
-    		src="/proxy?url={{.URL}}">
+    		src="/proxy?url={{.FrontendURL}}">
 		</iframe>
 		<iframe id="interactive-dcr"
 			title="Inline Frame Example"
 			width="{{.Width}}"
 			height="{{.Height}}"
-			src="/proxy?url={{.URL}}?dcr">
+			src="/proxy?url={{.DCRURL}}">
 		</iframe>
 	</body>
 </html>			
@@ -142,12 +149,24 @@ func main() {
 			target = customTarget
 		}
 
+		targetURL, _ := url.Parse(target)
+		path := targetURL.Path
+
+		frontendTarget := fmt.Sprintf("https://www.theguardian.com%s", path)
+		DCRTarget := ""
+		if *isLocalDCR {
+			DCRTarget = fmt.Sprintf("http://localhost:3030/Interactive?url=https://www.theguardian.com%s", path)
+		} else {
+			DCRTarget = frontendTarget + "?dcr"
+		}
+
 		data := TplData{
-			URL:        target,
-			Width:      breakpoints["mobile"],
-			Height:     breakpoints["mobile"] * 3,
-			Evergreens: evergreens,
-			Latests:    latests,
+			FrontendURL: frontendTarget,
+			DCRURL:      DCRTarget,
+			Width:       breakpoints["mobile"],
+			Height:      breakpoints["mobile"] * 3,
+			Evergreens:  evergreens,
+			Latests:     latests,
 		}
 
 		buf := bytes.Buffer{}
