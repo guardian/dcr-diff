@@ -18,6 +18,14 @@ button {
   margin-top: 10px;
 }
 
+.select-box {
+  display: flex;
+}
+
+.select-box input {
+  width: auto;
+}
+
 input,
 select {
   width: 200px;

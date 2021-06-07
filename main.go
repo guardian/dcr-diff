@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 type TplData struct {
@@ -97,6 +98,10 @@ func main() {
 		<form>
 			<label for="url">Custom URL:</label>
 			<input type="url" id="url" name="target" value="{{.FrontendURL}}">
+			<div class="select-box">
+				<input type="checkbox" id="amp" name="amp" value="amp">
+				<label for="amp">Show AMP variant (DCR Only)</label>
+			</div>
 			<button>Update</button>
 		</form>
 
@@ -115,7 +120,10 @@ func main() {
 					{{end}}
 				</optgroup>
 			</select>
-		
+			<div class="select-box">
+				<input type="checkbox" id="amp-2" name="amp" value="amp">
+				<label for="amp-2">Show AMP variant (DCR Only)</label>
+			</div>
 			<button>Update</button>
 		</form>
 
@@ -149,15 +157,25 @@ func main() {
 			target = customTarget
 		}
 
+		isAmp := r.URL.Query().Get(("amp")) == "amp"
+
 		targetURL, _ := url.Parse(target)
 		path := targetURL.Path
 
 		frontendTarget := fmt.Sprintf("https://www.theguardian.com%s", path)
 		DCRTarget := ""
+
 		if *isLocalDCR {
-			DCRTarget = fmt.Sprintf("http://localhost:3030/Interactive?url=https://www.theguardian.com%s", path)
+			if isAmp {
+				DCRTarget = fmt.Sprintf("http://localhost:3030/AMPInteractive?url=https://www.theguardian.com%s", path)
+			} else {
+				DCRTarget = fmt.Sprintf("http://localhost:3030/Interactive?url=https://www.theguardian.com%s", path)
+			}
 		} else {
 			DCRTarget = frontendTarget + "?dcr"
+			if isAmp {
+				DCRTarget = strings.Replace(DCRTarget, "www.theguardian.com", "amp.theguardian.com", 1)
+			}
 		}
 
 		data := TplData{
