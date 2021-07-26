@@ -1,24 +1,73 @@
-.iframes {
+#queueForm {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   display: flex;
-  flex-direction: row;
-  column-gap: 20px;
+  justify-content: center;
+  padding: 20px;
+  border-top: 1px solid gray;
+  background-color: lightgray;
 }
 
-label,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+#wrapper {
+  margin: 0 auto;
+  width: 80%;
+}
+
+#frontend,
+#dcr-wrapper {
+  width: 49%;
+  height: 600px;
+  display: inline-block;
+}
+
+#dcr {
+  width: 100%;
+  height: 600px;
+}
+
+@media (max-width: 800px) {
+  #frontend {
+    display: none;
+  }
+
+  #dcr-wrapper {
+    width: 100%;
+  }
+}
+
 button {
-  display: block;
-  font-weight: bold;
+  display: inline-block;
+  width: 60px;
+  font-size: 30px;
+}
+
+input {
+  width: 200px;
+}
+
+button[value="accept"] {
+  color: green;
+  margin-right: 20px;
+}
+
+button[value="reject"] {
+  color: red;
 }
 
 form {
-  margin-bottom: 20px;
+  display: flex;
+  align-items: stretch;
+  height: 60px;
 }
 
-button {
-  margin-top: 10px;
-}
-
-input,
-select {
-  width: 200px;
+#link {
+  font-size: 20px;
+  overflow-wrap: break-word;
+  display: block;
 }
