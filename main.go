@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +18,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-//go:embed main.css main.js
+//go:embed main.css main.js credentials.json
 var files embed.FS
 
 var activeRow = 2 // Used as a cursor to track what to show next. Start at 2 as header row expected.
@@ -53,7 +52,7 @@ func main() {
 		port = "8080"
 	}
 
-	fmt.Println(fmt.Sprintf("Ready to diff! Go to: http://localhoost:%s/queue.", port))
+	fmt.Println(fmt.Sprintf("Ready to diff! Go to: http://localhost:%s/queue.", port))
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
@@ -237,7 +236,7 @@ func saveToken(path string, token *oauth2.Token) {
 
 func getSheetsService() *sheets.Service {
 	ctx := context.Background()
-	b, err := ioutil.ReadFile("credentials.json")
+	b, err := files.ReadFile("credentials.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
